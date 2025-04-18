@@ -66,6 +66,19 @@ const Dashboard = () => {
     }
   };
 
+  const fetchMatchedIssuesAiV = async () => {
+    try {
+      setLoadingIssues(true);
+      const res = await axios.post("http://localhost:4000/api/matchAiV", { skills }, { withCredentials: true });
+      setIssues(res.data);
+    } catch (err) {
+      console.error("Issue fetch error:", err.message);
+      setIssues([]);
+    } finally {
+      setLoadingIssues(false);
+    }
+  };
+
   const fetchTopIssues = async () => {
     try {
       setLoadingIssues(true);
@@ -149,6 +162,18 @@ const Dashboard = () => {
             border: "1px solid #ccc"
           }}
         />
+        <button onClick={fetchMatchedIssuesAiV} style={{
+          marginTop: "10px",
+          padding: "10px 20px",
+          borderRadius: "6px",
+          background: "#0118d6",
+          color: "white",
+          border: "none",
+          cursor: "pointer"
+        }}>
+          Find VertexAi Matching Issues
+        </button>
+
         <button onClick={fetchMatchedIssues} style={{
           marginTop: "10px",
           padding: "10px 20px",
