@@ -11,6 +11,7 @@ const Dashboard = () => {
   const [loadingIssues, setLoadingIssues] = useState(false);
   const [languages, setLanguages] = useState([]);
   const [selectedLang, setSelectedLang] = useState(null);
+  const [liveIssues, setLiveIssues] = useState([]);
 
   useEffect(() => {
     axios.get("http://localhost:4000/api/user-languages", { withCredentials: true })
@@ -51,6 +52,16 @@ const Dashboard = () => {
   useEffect(() => {
     fetchTopIssues();
   }, []);  
+
+  useEffect(() => {
+    axios.get("http://localhost:4000/api/live-issues", { withCredentials: true })
+      .then((res) => setLiveIssues(res.data.issues || []))
+      .catch((err) => {
+        console.error("Error fetching live issues", err.message);
+        setLiveIssues([]);
+      });
+  }, []);
+  
   
 
   const fetchMatchedIssues = async () => {
@@ -200,7 +211,24 @@ const Dashboard = () => {
           ))}
         </ul>
 
-
+        <div style={{ marginTop: "40px" }}>
+          <h3>🔥 Live GitHub Issues (Posted Just Now)</h3>
+          {liveIssues.length === 0 ? (
+            <p>No fresh issues found at this moment.</p>
+          ) : (
+            <ul>
+              {liveIssues.map((issue, idx) => (
+                <li key={idx} style={{ marginBottom: "20px", borderBottom: "1px solid #eee", paddingBottom: "10px" }}>
+                  <strong>{issue.title}</strong><br />
+                  <a href={issue.html_url} target="_blank" rel="noopener noreferrer">{issue.html_url}</a><br />
+                  <span>Repo: {issue.repository_url?.split("/").slice(-2).join("/")}</span><br />
+                  <small>Created: {new Date(issue.created_at).toLocaleString()}</small>
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
+        
         <a
           href={`https://github.com/${user.username || user.login}`}
           target="_blank"
