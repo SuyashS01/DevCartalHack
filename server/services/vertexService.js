@@ -20,3 +20,4 @@ async function getEmbeddings(textArray) {
 }
 
 module.exports = { getEmbeddings };
+// get data form vertex ai creadential file
