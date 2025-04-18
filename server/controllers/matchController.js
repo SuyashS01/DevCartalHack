@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const axios = require("axios");
 const { fetchGitHubIssues } = require("../services/githubService");
+const { matchIssues } = require("../services/matchService"); 
 
 // Basic GET route (still useful for static query testing)
 router.get("/issues", async (req, res) => {
@@ -80,6 +81,47 @@ router.post("/match", async (req, res) => {
   const issues = await fetchGitHubIssues(user.accessToken, query, label);
   res.json(issues);
 });
+
+// Updated POST /api/match route
+router.post("/matchAiV", async (req, res) => {
+  const user = req.user;
+  if (!user || !user.accessToken) return res.status(401).json({ message: "Unauthorized" });
+
+  const skillsInput = req.body.skills || "";
+  const skillTags = skillsInput.split(",").map(s => s.trim()).filter(Boolean);
+
+  if (skillTags.length === 0) {
+    return res.status(400).json({ message: "No skills provided" });
+  }
+
+  try {
+    // Step 1: Prepare a fake 'userProfile' object based on skills
+    const userProfile = {
+      languages: skillTags,
+      recentCommits: [], // Optional: can keep empty if not available
+      repoDescriptions: [], // Optional: can keep empty
+    };
+
+    // Step 2: Fetch issues from GitHub
+    const query = skillTags.map(skill => `language:${skill}`).join(" ");
+    const label = "good first issue";
+
+    const issues = await fetchGitHubIssues(user.accessToken, query, label);
+
+    if (issues.length === 0) {
+      return res.status(404).json({ message: "No issues found" });
+    }
+
+    // Step 3: Match issues using Vertex AI embeddings
+    const topMatchedIssues = await matchIssues(userProfile, issues);
+
+    res.json(topMatchedIssues);
+  } catch (err) {
+    console.error("Match error:", err.message);
+    res.status(500).json({ message: "Failed to match issues" });
+  }
+});
+
 
 // /server/controllers/matchController.js
 router.get("/user-languages", async (req, res) => {
