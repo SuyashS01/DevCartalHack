@@ -5,10 +5,10 @@ const router = express.Router();
 router.get('/live-issues', async (req, res) => {
   try {
     // Get ISO timestamp for one minute ago
-    const oneMinuteAgo = new Date(Date.now() - 60 * 1000).toISOString();
+    const oneMinuteAgo = new Date(Date.now() - 60 * 15000).toISOString();
 
     // GitHub Search API URL
-    const query = `type:issue+state:open+created:>${oneMinuteAgo}`;
+    const query = `type:issue+state:open+created:>${fifteenMinutesAgo}`;
     const url = `https://api.github.com/search/issues?q=${encodeURIComponent(query)}`;
 
     // Optional: Add your GitHub token for higher rate limits
