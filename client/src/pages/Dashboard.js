@@ -79,7 +79,6 @@ const Dashboard = () => {
     }
   };
   
-
   if (!user) return <h2>Loading...</h2>;
 
   return (

@@ -1,22 +1,42 @@
-const axios = require("axios");
+// const axios = require("axios");
+// const { GoogleAuth } = require("google-auth-library");
 
-// Assume GOOGLE_APPLICATION_CREDENTIALS is already set up
-const VERTEX_ENDPOINT = "https://us-central1-aiplatform.googleapis.com/v1/projects/YOUR_PROJECT_ID/locations/us-central1/publishers/google/models/textembedding-gecko@003:predict";
+// // Load the service account JSON
+// const auth = new GoogleAuth({
+//   keyFile: "E:/Basic Learning/React_Node/github_opensource_contri_mathchmaker/server/services/vertexcreadentials.json", // <--- your path
+//   scopes: "https://www.googleapis.com/auth/cloud-platform",
+// });
 
-async function getEmbeddings(textArray) {
-  const res = await axios.post(
-    VERTEX_ENDPOINT,
-    {
-      instances: textArray.map(text => ({ content: text })),
-    },
-    {
-      headers: {
-        Authorization: `Bearer YOUR_ACCESS_TOKEN`,
-        "Content-Type": "application/json",
-      },
-    }
-  );
-  return res.data.predictions; // embeddings
-}
+// // Replace with your real project ID
+// const PROJECT_ID = "dynamic-digit-456709-a8";
+// const LOCATION = "us-central1";
+// const MODEL = "textembedding-gecko@003";
 
-module.exports = { getEmbeddings };
+// const VERTEX_ENDPOINT = `https://${LOCATION}-aiplatform.googleapis.com/v1/projects/${PROJECT_ID}/locations/${LOCATION}/publishers/google/models/${MODEL}:predict`;
+
+// async function getAccessToken() {
+//   const client = await auth.getClient();
+//   const accessTokenResponse = await client.getAccessToken();
+//   return accessTokenResponse.token;
+// }
+
+// async function getEmbeddings(textArray) {
+//   const token = await getAccessToken();
+
+//   const res = await axios.post(
+//     VERTEX_ENDPOINT,
+//     {
+//       instances: textArray.map(text => ({ content: text })),
+//     },
+//     {
+//       headers: {
+//         Authorization: `Bearer ${token}`,
+//         "Content-Type": "application/json",
+//       },
+//     }
+//   );
+
+//   return res.data.predictions; // embeddings
+// }
+
+// module.exports = { getEmbeddings };
