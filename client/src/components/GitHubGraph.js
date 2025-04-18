@@ -37,9 +37,6 @@ const GitHubGraph = ({ username }) => {
           overflowX: "auto",
         }}
       />
-      <div style={{ marginTop: "10px", fontSize: "14px", color: "#555" }}>
-        Contributions in the last year for <strong>{username}</strong>
-      </div>
       <div style={{ marginTop: "20px", textAlign: "center" }}>
       <img
         src={`https://ghchart.rshah.org/${username}`}

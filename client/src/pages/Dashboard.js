@@ -47,6 +47,10 @@ const Dashboard = () => {
       .then((res) => setIssues(res.data))
       .catch(() => setIssues([]));
   }, [selectedLang]);
+
+  useEffect(() => {
+    fetchTopIssues();
+  }, []);  
   
 
   const fetchMatchedIssues = async () => {
@@ -61,6 +65,20 @@ const Dashboard = () => {
       setLoadingIssues(false);
     }
   };
+
+  const fetchTopIssues = async () => {
+    try {
+      setLoadingIssues(true);
+      const res = await axios.get("http://localhost:4000/api/issues", { withCredentials: true });
+      setIssues(res.data);
+    } catch (err) {
+      console.error("Top issues fetch error:", err.message);
+      setIssues([]);
+    } finally {
+      setLoadingIssues(false);
+    }
+  };
+  
 
   if (!user) return <h2>Loading...</h2>;
 
