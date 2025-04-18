@@ -1,4 +1,4 @@
-const { getEmbeddings } = require("../vertexService"); // Adjust path if needed
+const { getEmbeddings } = require("./vertexService"); // ✅ Correct path // Adjust path if needed
 
 async function matchIssues(userProfile, issues) {
   const userText = `
