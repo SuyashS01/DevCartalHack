@@ -1,0 +1,71 @@
+import requests
+from urllib.parse import urlparse
+import google.generativeai as genai
+genai.configure(api_key="AIzaSyBciSvLma-f_ymmUnaz1eQO_6F_cSWCUls")
+# Optional: GitHub token for higher rate limits
+GITHUB_TOKEN = "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"# Or set to "ghp_XXXXXXXXXXXXXXXXXXXX"
+def interpret_query_with_gemini(user_input):
+    model = genai.GenerativeModel('gemini-2.0-flash')
+    prompt = f"Convert the following natural language query into GitHub search keywords: '{user_input}'."
+    response = model.generate_content(prompt)
+    return response.text.strip()
+
+def github_headers():
+    headers = {
+        "Accept": "application/vnd.github.v3+json"
+    }
+    if GITHUB_TOKEN:
+        headers["Authorization"] = f"token {GITHUB_TOKEN}"
+    return headers
+
+def search_issues_by_keywords(keywords, max_results=20):
+    query = f"{keywords} in:title,body is:issue is:open"
+    url = f"https://api.github.com/search/issues?q={query}&per_page={max_results}"
+    response = requests.get(url, headers=github_headers())
+    if response.status_code == 200:
+        return response.json().get("items", [])
+    else:
+        print("Failed to fetch issues:", response.text)
+        return []
+
+def extract_repo_info(issue_url):
+    parts = urlparse(issue_url).path.strip("/").split("/")
+    if len(parts) >= 3:
+        return parts[0], parts[1]  # owner, repo
+    return None, None
+
+def get_repo_languages(owner, repo):
+    url = f"https://api.github.com/repos/{owner}/{repo}/languages"
+    response = requests.get(url, headers=github_headers())
+    if response.status_code == 200:
+        return response.json()
+    return {}
+
+def main():
+    user_input = input("Enter the input for issue: ")
+    search_keywords = interpret_query_with_gemini(user_input)
+    issues = search_issues_by_keywords(search_keywords)
+    #print(f"🔍 Interpreted keywords: {search_keywords}")
+    
+    count=0
+    for issue in issues:
+        count+=1
+        issue_url = issue["html_url"]
+        
+      
+
+        owner, repo = extract_repo_info(issue_url)
+        if owner and repo:
+            
+            languages = get_repo_languages(owner, repo)
+            if languages:
+              print(f"\n🔗 Issue: {issue_url}")
+              print(f"📝 Title: {issue['title']}")
+              print(f"🧠 Languages: {list(languages.keys())}")
+              print(f"📦 Repo: {owner}/{repo}")
+
+        else:
+            print("⚠️ Could not extract repo info.")
+    print(count)
+if __name__ == "__main__":
+    main()
