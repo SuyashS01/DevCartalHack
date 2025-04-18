@@ -23,6 +23,9 @@ app.use("/api", matchRoutes);
 const repoRoutes = require("./controllers/userController");
 app.use("/api", repoRoutes);
 
+const liveIssuesRoute = require('./controllers/liveissueController'); // adjust path if needed
+app.use('/api', liveIssuesRoute);
+
 
 app.listen(4000, () => console.log("Server running on http://localhost:4000"));
 //node index.js
