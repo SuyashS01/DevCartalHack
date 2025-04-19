@@ -1,3 +1,5 @@
+#In this script when user enters a query he gets list of url of issues
+
 import requests
 from urllib.parse import urlparse
 import google.generativeai as genai
@@ -41,10 +43,10 @@ def get_repo_languages(owner, repo):
         return response.json()
     return {}
 
-def main():
-    user_input = input("Enter the input for issue: ")
+def main(user_input):
+    
     search_keywords = interpret_query_with_gemini(user_input)
-    print(search_keywords)
+    #print(search_keywords)
     issues = search_issues_by_keywords(search_keywords)
     #print(f"🔍 Interpreted keywords: {search_keywords}")
     issue_data=[]
@@ -53,23 +55,14 @@ def main():
     for issue in issues:
         
         issue_url = issue["html_url"]
-        print(issue_url)
+        issue_data.append(issue_url)
         
+    return issue_data
 
-
-        # owner, repo = extract_repo_info(issue_url)
-        # if owner and repo:
-            
-        #     languages = get_repo_languages(owner, repo)
-        #     if languages:
-        #       print(f"\n🔗 Issue: {issue_url}")
-        #       print(f"📝 Title: {issue['title']}")
-        #       print(f"🧠 Languages: {list(languages.keys())}")
-        #       print(f"📦 Repo: {owner}/{repo}")
-
-        # else:
-        #     print("⚠️ Could not extract repo info.")
+      
     
 if __name__ == "__main__":
-    main()
+   data= main(user_input="i want to contribute to a blockchain based open source repo")
+   print(data)
+    
 
