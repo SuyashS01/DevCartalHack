@@ -1,7 +1,7 @@
 #Python script to get user data related to his repo
 
 import requests
-
+from GetUserAchievments import scrape_unique_achievements
 
 
 
@@ -22,13 +22,18 @@ def get_user_repos(username):
     return response.json() if response.status_code == 200 else []
 
 #function to get commits of single repo by user
+
 def get_commits(owner, repo, author):
     url = f"https://api.github.com/repos/{owner}/{repo}/commits"
     params = {"author": author}
     response = requests.get(url, headers=github_headers(), params=params)
+
     if response.status_code == 200:
         return [commit["commit"]["message"] for commit in response.json()]
-    return []
+    else:
+        print(f"Failed to get commits for {owner}/{repo} - Status: {response.status_code}")
+        return []  # Return empty list if request fails
+  
 
 #function to get languages used in  single repo
 def get_languages(owner, repo):
@@ -57,16 +62,20 @@ def get_repo_description(owner, repo):
 
 
 def extract_user_data(username):
-    user_data = {"repos": []}
+    user_data = {"username":username,"repos": [],"following":[],"followers":[],"achievments":{}}
     repos = get_user_repos(username)
     count=0
+    followers,following=get_github_follow_data(username)
+    user_data["followers"]=followers
+    user_data["following"]=following
+    user_data["achievments"]=scrape_unique_achievements(username)
     for repo in repos:
         owner = repo["owner"]["login"]
         repo_name = repo["name"]
         commits = get_commits(owner, repo_name, username)
         languages = get_languages(owner, repo_name)
         description=get_repo_description(owner,repo_name)
-
+        
         user_data["repos"].append({
             "repo_name": repo_name,
             "ownername": owner,
@@ -80,12 +89,41 @@ def extract_user_data(username):
 
     return user_data
 
+def get_github_follow_data(username):
+    
+    followers_url = f"https://api.github.com/users/{username}/followers"
+    following_url = f"https://api.github.com/users/{username}/following"
+
+    followers = []
+    following = []
+
+    # Get Followers
+    response_followers = requests.get(followers_url, headers=github_headers())
+    if response_followers.status_code == 200:
+        followers = [user['login'] for user in response_followers.json()]
+    else:
+        print("Failed to fetch followers:", response_followers.text)
+
+    # Get Following
+    response_following = requests.get(following_url, headers=github_headers())
+    if response_following.status_code == 200:
+        following = [user['login'] for user in response_following.json()]
+    else:
+        print("Failed to fetch following:", response_following.text)
+
+    return (followers, following) if followers and following else ([], [])
+
+
+
 # === Run ===
 if __name__ == "__main__":
     data=extract_user_data('jmschrei')
     # print(len(data['repos']))
     # repos=get_user_repos('jmschrei')
-    print(data['repos'][1])
+    print(data['username'])
+    print(data['followers'])
+    print(data["following"])
+    print(data["achievments"])
+    print(data['repos'][2])
     
     
-    pass
