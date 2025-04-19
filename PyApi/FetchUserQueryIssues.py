@@ -3,6 +3,8 @@
 import requests
 from urllib.parse import urlparse
 import google.generativeai as genai
+# from GetUserData import extract_user_data
+
 genai.configure(api_key="AIzaSyBciSvLma-f_ymmUnaz1eQO_6F_cSWCUls")
 # Optional: GitHub token for higher rate limits
 GITHUB_TOKEN = "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"
@@ -43,8 +45,8 @@ def get_repo_languages(owner, repo):
         return response.json()
     return {}
 
-def main(user_input):
-    
+def main(user_input):     
+
     search_keywords = interpret_query_with_gemini(user_input)
     #print(search_keywords)
     issues = search_issues_by_keywords(search_keywords)
@@ -59,10 +61,11 @@ def main(user_input):
         
     return issue_data
 
-      
+ 
     
 if __name__ == "__main__":
-   data= main(user_input="i want to contribute to a blockchain based open source repo")
+   data = main(user_input="i want to contribute to a blockchain based open source repo") 
+
    print(data)
     
 
