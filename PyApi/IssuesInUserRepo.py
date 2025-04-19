@@ -1,3 +1,9 @@
+
+#This script return data of issues present in particular repo of user by taking input of username and his language
+
+
+
+
 import requests
 from langdetect import detect, LangDetectException
 from sentence_transformers import SentenceTransformer, util
@@ -109,6 +115,7 @@ def match_issues_from_selected_repo(username, user_languages):
         print(f"{idx}. {repo['name']}")
 
     try:
+        #Take input from frontend to dispaly issues from repo
         selected = int(input("\n👉 Select the repo number to fetch issues from: ")) - 1
         if not (0 <= selected < len(repos)):
             print("❌ Invalid selection.")
