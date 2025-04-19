@@ -1,3 +1,15 @@
+#In this script we get output/structure of data as
+# {
+#   "title": "Ajuda na função soma",
+#   "state": "open",
+#   "created_at": "2023-08-22T18:57:00Z",
+#   "comments": 2,
+#   "body": "Estou tentando somar dois números...",
+#   "issue_number": 1,
+#   "repository_url": "https://github.com/Bielmfp18/programacaoC"
+# }
+
+#In this we send issue detail to frontend to display
 import requests
 from urllib.parse import urlparse
 
@@ -53,14 +65,5 @@ if __name__=="__main__":
 #print(data)
 
 
-#In this script we get output/structure of data as
-# {
-#   "title": "Ajuda na função soma",
-#   "state": "open",
-#   "created_at": "2023-08-22T18:57:00Z",
-#   "comments": 2,
-#   "body": "Estou tentando somar dois números...",
-#   "issue_number": 1,
-#   "repository_url": "https://github.com/Bielmfp18/programacaoC"
-# }
+
 
