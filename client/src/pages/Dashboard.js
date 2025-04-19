@@ -103,8 +103,8 @@ const Dashboard = () => {
           width="80"
           style={{ borderRadius: "50%" }}
         />
+        <h2 style={{ margin: 0 }}>Welcome, {user.username || user.displayName}</h2>
         <div>
-          <h2 style={{ margin: 0 }}>Welcome, {user.username || user.displayName}</h2>
           <ProfilePage />
           <button onClick={handleLogout} style={{
             marginTop: "10px",
