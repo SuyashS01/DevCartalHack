@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import GitHubGraph from "../components/GitHubGraph";
 import RecentCommits from "../components/RecentCommits";
+import ProfilePage from "./ProfilePage";
 
 const Dashboard = () => {
   const [user, setUser] = useState(null);
@@ -11,7 +12,6 @@ const Dashboard = () => {
   const [loadingIssues, setLoadingIssues] = useState(false);
   const [languages, setLanguages] = useState([]);
   const [selectedLang, setSelectedLang] = useState(null);
-  const [liveIssues, setLiveIssues] = useState([]);
 
   useEffect(() => {
     axios.get("http://localhost:4000/api/user-languages", { withCredentials: true })
@@ -52,17 +52,6 @@ const Dashboard = () => {
   useEffect(() => {
     fetchTopIssues();
   }, []);  
-
-  useEffect(() => {
-    axios.get("http://localhost:4000/api/live-issues", { withCredentials: true })
-      .then((res) => setLiveIssues(res.data.issues || []))
-      .catch((err) => {
-        console.error("Error fetching live issues", err.message);
-        setLiveIssues([]);
-      });
-  }, []);
-  
-  
 
   const fetchMatchedIssues = async () => {
     try {
@@ -116,6 +105,7 @@ const Dashboard = () => {
         />
         <div>
           <h2 style={{ margin: 0 }}>Welcome, {user.username || user.displayName}</h2>
+          <ProfilePage />
           <button onClick={handleLogout} style={{
             marginTop: "10px",
             padding: "6px 12px",
@@ -153,7 +143,7 @@ const Dashboard = () => {
       </div>
 
 
-      <h3 style={{ marginTop: "40px" }}>Your Recent Commits</h3>
+      <h3 style={{ marginTop: "40px" }}>🕒 Recent Commits</h3>
       <RecentCommits />
 
       <h3 style={{ marginTop: "40px" }}>Your GitHub Contributions</h3>

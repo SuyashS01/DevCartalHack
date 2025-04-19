@@ -37,3 +37,14 @@ const LiveIssuesPage = () => {
 };
 
 export default LiveIssuesPage;
+
+
+// useEffect(() => {
+//   axios.get("http://localhost:4000/api/live-issues", { withCredentials: true })
+//     .then((res) => setLiveIssues(res.data.issues || []))
+//     .catch((err) => {
+//       console.error("Error fetching live issues", err.message);
+//       setLiveIssues([]);
+//     });
+// }, []);
+//   const [liveIssues, setLiveIssues] = useState([]);

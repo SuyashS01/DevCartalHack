@@ -105,11 +105,103 @@ const fetchRecentCommits = async (accessToken, topRepos) => {
   return recentCommits;
 };
 
+const fetchUserProfile = async (accessToken) => {
+  try {
+    const res = await axios.get("https://api.github.com/user", {
+      headers: { Authorization: `Bearer ${accessToken}` },
+    });
+
+    const { name, email = null, login, followers, following, public_repos } = res.data;
+    return { name, email, login, followers, following, public_repos };
+  } catch (err) {
+    console.error("Error fetching user profile:", err.message);
+    return null;
+  }
+};
+
+const fetchUserStats = async (accessToken, username) => {
+  const query = `
+    query {
+      user(login: "${username}") {
+        contributionsCollection {
+          contributionCalendar {
+            totalContributions
+          }
+        }
+        pullRequests(states: OPEN) {
+          totalCount
+        }
+        issues {
+          totalCount
+        }
+        repositoriesContributedTo(first: 5, contributionTypes: [COMMIT, PULL_REQUEST, ISSUE], includeUserRepositories: false) {
+          nodes {
+            nameWithOwner
+            url
+          }
+        }
+        topRepositories(first: 5, orderBy: {field: STARGAZERS, direction: DESC}) {
+          nodes {
+            nameWithOwner
+            url
+            stargazerCount
+          }
+        }
+      }
+    }
+  `;
+
+  try {
+    const res = await axios.post(
+      "https://api.github.com/graphql",
+      { query },
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+
+    const user = res.data.data.user;
+
+    return {
+      contributionsThisYear: user.contributionsCollection.contributionCalendar.totalContributions,
+      openPullRequests: user.pullRequests.totalCount,
+      contributedIssues: user.issues.totalCount,
+      topRepos: user.topRepositories.nodes,
+      activeContributions: user.repositoriesContributedTo.nodes,
+    };
+  } catch (err) {
+    console.error("GraphQL error:", err.response?.data || err.message);
+    return null;
+  }
+};
+
+const getCompleteProfile = async (accessToken) => {
+  const profile = await fetchUserProfile(accessToken);
+
+  if (!profile) return null;
+
+  const stats = await fetchUserStats(accessToken, profile.login);
+  const repos = await getUserTopRepos(accessToken);
+
+  return {
+    profile,
+    stats,
+    recentRepos: repos,
+  };
+};
+
 module.exports = {
   fetchGitHubIssues,
   getUserTopRepos,
-  fetchRecentCommits 
+  fetchRecentCommits,
+  getCompleteProfile
 };
+
+
+
 // /server/services/githubService.js
 
 // const axios = require("axios");
