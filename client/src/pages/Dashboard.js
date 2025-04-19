@@ -237,22 +237,21 @@ const Dashboard = () => {
         </ul>
 
         <div style={{ marginTop: "40px" }}>
-          <h3>🔥 Live GitHub Issues (Posted Just Now)</h3>
-          {liveIssues.length === 0 ? (
-            <p>No fresh issues found at this moment.</p>
-          ) : (
-            <ul>
-              {liveIssues.map((issue, idx) => (
-                <li key={idx} style={{ marginBottom: "20px", borderBottom: "1px solid #eee", paddingBottom: "10px" }}>
-                  <strong>{issue.title}</strong><br />
-                  <a href={issue.html_url} target="_blank" rel="noopener noreferrer">{issue.html_url}</a><br />
-                  <span>Repo: {issue.repository_url?.split("/").slice(-2).join("/")}</span><br />
-                  <small>Created: {new Date(issue.created_at).toLocaleString()}</small>
-                </li>
-              ))}
-            </ul>
-          )}
+          <h3>🔥 Explore Live GitHub Issues</h3>
+          <a href="/live-issues" style={{
+            display: "inline-block",
+            marginTop: "10px",
+            background: "#ff6600",
+            color: "#fff",
+            padding: "10px 20px",
+            borderRadius: "6px",
+            textDecoration: "none",
+            fontWeight: "bold"
+          }}>
+            View Issues Posted in Last 15 Minutes →
+          </a>
         </div>
+
         
         <a
           href={`https://github.com/${user.username || user.login}`}
