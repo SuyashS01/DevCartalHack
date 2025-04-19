@@ -43,10 +43,10 @@ def get_repo_languages(owner, repo):
         return response.json()
     return {}
 
-def main():
-    user_input = input("Enter the input for issue: ")
+def main(user_input):
+    
     search_keywords = interpret_query_with_gemini(user_input)
-    print(search_keywords)
+    #print(search_keywords)
     issues = search_issues_by_keywords(search_keywords)
     #print(f"🔍 Interpreted keywords: {search_keywords}")
     issue_data=[]
@@ -62,5 +62,7 @@ def main():
       
     
 if __name__ == "__main__":
-    main()
+   data= main(user_input="i want to contribute to a blockchain based open source repo")
+   print(data)
+    
 
