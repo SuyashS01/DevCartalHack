@@ -1,0 +1,147 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* GitHub-inspired light theme */
+    --background: 0 0% 100%;
+    --foreground: 215 14% 34%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 215 14% 34%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 215 14% 34%;
+
+    --primary: 212 91% 42%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 215 14% 34%;
+
+    --muted: 213 14% 95%;
+    --muted-foreground: 215 14% 50%;
+
+    --accent: 120 66% 34%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 212 91% 42%;
+
+    --radius: 0.5rem;
+
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 215 14% 34%;
+    --sidebar-primary: 212 91% 42%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 215 14% 34%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 212 91% 42%;
+  }
+
+  .dark {
+    /* GitHub-inspired dark theme */
+    --background: 215 28% 6%;
+    --foreground: 213 14% 80%;
+
+    --card: 215 28% 9%;
+    --card-foreground: 213 14% 80%;
+
+    --popover: 215 28% 9%;
+    --popover-foreground: 213 14% 80%;
+
+    --primary: 212 91% 42%;
+    --primary-foreground: 0 0% 100%;
+
+    --secondary: 215 28% 12%;
+    --secondary-foreground: 213 14% 80%;
+
+    --muted: 215 28% 11%;
+    --muted-foreground: 213 14% 65%;
+
+    --accent: 142 64% 31%;
+    --accent-foreground: 0 0% 100%;
+
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 215 28% 15%;
+    --input: 215 28% 15%;
+    --ring: 212 91% 42%;
+
+    --sidebar-background: 215 28% 6%;
+    --sidebar-foreground: 213 14% 80%;
+    --sidebar-primary: 212 91% 42%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 215 28% 11%;
+    --sidebar-accent-foreground: 213 14% 80%;
+    --sidebar-border: 215 28% 15%;
+    --sidebar-ring: 212 91% 42%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+  }
+
+  html {
+    @apply scroll-smooth;
+  }
+}
+
+@layer components {
+  .github-card {
+    @apply bg-card rounded-lg border border-border shadow-sm transition-all hover:shadow-md;
+  }
+  
+  .text-balance {
+    text-wrap: balance;
+  }
+  
+  .hover-scale {
+    @apply transition-transform duration-200 hover:scale-[1.02];
+  }
+  
+  .github-button {
+    @apply bg-github-button text-white hover:bg-github-buttonHover transition-colors font-medium rounded-md;
+  }
+  
+  .badge {
+    @apply inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium;
+  }
+  
+  .badge-primary {
+    @apply badge bg-primary/10 text-primary;
+  }
+  
+  .badge-secondary {
+    @apply badge bg-secondary text-secondary-foreground;
+  }
+  
+  .badge-accent {
+    @apply badge bg-accent/10 text-accent;
+  }
+  
+  .match-score-high {
+    @apply bg-match-high/10 text-match-high;
+  }
+  
+  .match-score-medium {
+    @apply bg-match-medium/10 text-match-medium;
+  }
+  
+  .match-score-low {
+    @apply bg-match-low/10 text-match-low;
+  }
+}
