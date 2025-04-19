@@ -1,8 +1,14 @@
-import requests
-from urllib.parse import urlparse
-from liveissue import fetch_latest_issues  # This should return title, issue_url, repo_languages
+from fastapi import FastAPI
+from pydantic import BaseModel
+from typing import List
 from langdetect import detect, LangDetectException
-# GitHub token for rate limit handling (optional)
+from sentence_transformers import SentenceTransformer, util
+import uuid
+
+app = FastAPI()
+model = SentenceTransformer('all-MiniLM-L6-v2')
+
+# Optional GitHub Token
 GITHUB_TOKEN = "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"
 
 def github_headers():
@@ -11,71 +17,83 @@ def github_headers():
         headers["Authorization"] = f"token {GITHUB_TOKEN}"
     return headers
 
-from sentence_transformers import SentenceTransformer, util
+# 🧪 Mocked GitHub Issues (replace with real fetch logic if needed)
+def fetch_latest_issues(limit=20):
+    return [
+        {
+            "title": "Improve documentation for API endpoints",
+            "issue_url": "https://github.com/api-platform/rest-api/issues/6",
+            "repo_languages": ["Markdown", "YAML"],
+            "repo": {
+                "name": "rest-api",
+                "owner": "api-platform",
+                "stars": 952
+            },
+            "created_at": "2023-04-15",
+            "tags": ["documentation", "api", "good-first-issue"],
+            "experience": "beginner"
+        },
+        {
+            "title": "Fix bug in JavaScript input handler",
+            "issue_url": "https://github.com/js-lib/handler/issues/14",
+            "repo_languages": ["JavaScript"],
+            "repo": {
+                "name": "handler",
+                "owner": "js-lib",
+                "stars": 320
+            },
+            "created_at": "2023-04-10",
+            "tags": ["bug", "frontend", "javascript"],
+            "experience": "intermediate"
+        }
+        # ➕ Add more issues or fetch dynamically
+    ]
 
-# Load the transformer model
-model = SentenceTransformer('all-MiniLM-L6-v2')
-
-
-
-def calculate_similarity(user_languages, issue_data):
+# 🧠 Matching Logic
+def calculate_similarity(user_languages: List[str], issue_data: List[dict]):
     user_input = " ".join(user_languages)
     user_embedding = model.encode(user_input, convert_to_tensor=True)
-
-    scored_issues = []
+    matched = []
 
     for issue in issue_data:
-        title = issue['title']
-
-        # Skip non-English titles
         try:
-            if detect(title) != "en":
+            if detect(issue["title"]) != "en":
                 continue
         except LangDetectException:
-            continue  # In case detection fails
+            continue
 
-        combined_text = title + " " + " ".join(issue['repo_languages'])
+        combined_text = issue["title"] + " " + " ".join(issue["repo_languages"])
         issue_embedding = model.encode(combined_text, convert_to_tensor=True)
         raw_score = util.cos_sim(user_embedding, issue_embedding).item()
-        normalized_score = int((raw_score + 1) / 2 * 100)  # Scale to 0–100
-        final_score = max(normalized_score, 1)  # Clamp to minimum 1
+        normalized_score = int((raw_score + 1) / 2 * 100)
 
-        scored_issues.append({
-            "title": title,
-            "issue_url": issue['issue_url'],
-            "repo_languages": issue['repo_languages'],
-            "score": final_score
+        matched.append({
+            "id": str(uuid.uuid4()),
+            "title": issue["title"],
+            "repo": issue["repo"],
+            "tags": issue.get("tags", []),
+            "matchScore": normalized_score,
+            "createdAt": issue["created_at"],
+            "matchReasons": [
+                "Matches your language preferences",
+                "Open source project with relevant tags",
+                "Title has high similarity with your skills"
+            ],
+            "language": issue["repo_languages"][0] if issue["repo_languages"] else "Unknown",
+            "experience": issue.get("experience", "unknown"),
+            "issue_url": issue["issue_url"]
         })
 
-    return sorted(scored_issues, key=lambda x: x["score"], reverse=True)
+    return sorted(matched, key=lambda x: x["matchScore"], reverse=True)
 
+# 📦 Request Body
+class IssueRequest(BaseModel):
+    user_languages: List[str]
 
-#THis is the main function to call with argument (user language)
-def toptenscorer(userlanguages):
-    issue_data = fetch_latest_issues(20)
-    if not issue_data:
-        print("❌ No issue data found.")
-        return
-
-    scored = calculate_similarity(userlanguages, issue_data)
-    
-    for issue in scored[:10]:  # Top 10 results
-        print(f"📝 Title: {issue['title']}")
-        print(f"🔗 URL: {issue['issue_url']}")
-        print(f"🧪 Repo Languages: {', '.join(issue['repo_languages'])}")
-        print(f"🎯 Matching Score: {issue['score']}")
-        print("-" * 60)
-    return scored
-# Example usage
-if __name__ == "__main__":
-    user_known_languages = ["Python", "JavaScript", "HTML", "CSS",'C','C++','C#']
-    toptenscorer(user_known_languages)
-
-
-#Structure of scored 
-#[{
-    # 'title':,
-    # 'issue_url':,
-    # 'repo_language':,
-    # 'score':
-    # }]
+# 🚀 API Endpoint
+@app.post("/match-issues")
+def get_matched_issues(payload: IssueRequest):
+    raw_issues = fetch_latest_issues(30)
+    matched_issues = calculate_similarity(payload.user_languages, raw_issues)
+    return matched_issues[:10]
+02

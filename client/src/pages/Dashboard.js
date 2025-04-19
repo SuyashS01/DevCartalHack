@@ -20,7 +20,7 @@ const Dashboard = () => {
   }, []);
   
   useEffect(() => {
-    axios.get("http://localhost:4000/auth/user", { withCredentials: true })
+    axios.get("http://localhost:4000/auth/user", { withCredentials: true }) #to get user profile data after auth
       .then((res) => setUser(res.data.profile))
       .catch(() => setUser(null));
   }, []);
