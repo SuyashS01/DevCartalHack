@@ -1,3 +1,5 @@
+#Python script to get user data related to his repo
+
 import requests
 
 
