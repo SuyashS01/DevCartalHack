@@ -7,18 +7,21 @@ import ProfilePage from "./ProfilePage";
 const Dashboard = () => {
   const [user, setUser] = useState(null);
   const [skills, setSkills] = useState("");
+  const [uquery, setUquery] = useState("");
   const [issues, setIssues] = useState([]);
+  const [issues2, setIssues2] = useState([]);
   const [repos, setRepos] = useState([]);
   const [loadingIssues, setLoadingIssues] = useState(false);
   const [languages, setLanguages] = useState([]);
   const [selectedLang, setSelectedLang] = useState(null);
+  const [languageMatchedIssues, setLanguageMatchedIssues] = useState([]);
 
   useEffect(() => {
     axios.get("http://localhost:4000/api/user-languages", { withCredentials: true })
       .then(res => setLanguages(res.data))
       .catch(err => console.error("Failed to load languages", err));
   }, []);
-  
+
   useEffect(() => {
     axios.get("http://localhost:4000/auth/user", { withCredentials: true })
       .then((res) => setUser(res.data.profile))
@@ -30,6 +33,24 @@ const Dashboard = () => {
       .then((res) => setRepos(res.data))
       .catch(() => setRepos([]));
   }, []);
+
+  useEffect(() => {
+    if (languages.length === 0) return;
+  
+    console.log("Sending languages to backend:", languages); // Log before POST
+  
+    axios
+      .post("http://localhost:5001/api/match-issues", { languages })
+      .then((res) => {
+        console.log("Matched issues:", res.data); // Log response
+        setLanguageMatchedIssues(res.data.matched_issues || []);
+      })
+      .catch((err) => {
+        console.error("Language-based issue fetch failed:", err.message);
+        setLanguageMatchedIssues([]);
+      });
+  }, [languages]); 
+
 
   const handleLogout = async () => {
     try {
@@ -43,7 +64,7 @@ const Dashboard = () => {
 
   useEffect(() => {
     if (!selectedLang) return;
-  
+
     axios.get(`http://localhost:4000/api/issues?language=${selectedLang}`, { withCredentials: true })
       .then((res) => setIssues(res.data))
       .catch(() => setIssues([]));
@@ -51,7 +72,7 @@ const Dashboard = () => {
 
   useEffect(() => {
     fetchTopIssues();
-  }, []);  
+  }, []);
 
   const fetchMatchedIssues = async () => {
     try {
@@ -91,7 +112,22 @@ const Dashboard = () => {
       setLoadingIssues(false);
     }
   };
-  
+
+  const fetchAIQueryIssues = async () => {
+    try {
+      setLoadingIssues(true);
+      const res = await axios.post("http://localhost:5001/query_issues", {
+        query: uquery
+      });
+      setIssues2(res.data.matched_issues || []); // ✅ Corrected line
+    } catch (err) {
+      console.error("AI query issue fetch error:", err.message);
+      setIssues2([]);
+    } finally {
+      setLoadingIssues(false);
+    }
+  };  
+
   if (!user) return <h2>Loading...</h2>;
 
   return (
@@ -142,6 +178,92 @@ const Dashboard = () => {
         </div>
       </div>
 
+      <div style={{ marginTop: "30px" }}>
+  <h4>Search Open Source Issues by AI Query</h4>
+  <input
+    type="text"
+    value={uquery}
+    onChange={(e) => setUquery(e.target.value)}
+    placeholder="e.g., I want to contribute to blockchain projects"
+    style={{
+      width: "100%",
+      padding: "10px",
+      marginBottom: "10px",
+      borderRadius: "6px",
+      border: "1px solid #ccc"
+    }}
+  />
+  <button
+    onClick={fetchAIQueryIssues}
+    style={{
+      padding: "8px 16px",
+      backgroundColor: "#28a745",
+      color: "white",
+      border: "none",
+      borderRadius: "6px",
+      cursor: "pointer"
+    }}
+  >
+    Search AI-Matched Issues
+  </button>
+</div>
+
+{loadingIssues ? (
+  <p>Loading issues...</p>
+) : issues2.length > 0 ? (
+  <div style={{ marginTop: "20px" }}>
+    <h4>Matching Issues:</h4>
+    {issues2.map((issue, idx) => (
+      <div key={idx} style={{ border: "1px solid #ddd", padding: "10px", borderRadius: "8px", marginBottom: "10px" }}>
+        <a href={issue.issue_url} target="_blank" rel="noopener noreferrer" style={{ fontWeight: "bold", fontSize: "16px", color: "#0366d6" }}>
+          {issue.title}
+        </a>
+        <p>{issue.body?.slice(0, 150)}...</p>
+        <p style={{ fontSize: "14px", color: "#888" }}>Repo: <a href={issue.repository_url} target="_blank">{issue.repository_url}</a></p>
+        <p>Status: {issue.state} | Comments: {issue.comments}</p>
+      </div>
+    ))}
+  </div>
+) : (
+  <p>No matching issues found.</p>
+)}
+
+
+      <div style={{ marginTop: "20px" }}>
+        <h4>✅ Your Known Languages:</h4>
+        {languages.length === 0 ? (
+          <p>Loading or no languages found.</p>
+        ) : (
+          <p>{languages.join(", ")}</p>
+        )}
+      </div>
+
+      <div style={{ marginTop: "40px" }}>
+        <h3>🧠 Smart Matches from Your Languages</h3>
+        {languageMatchedIssues.length === 0 ? (
+          <p>No matches found based on your known languages.</p>
+        ) : (
+          <ul>
+            {languageMatchedIssues.map((issue, idx) => (
+              <li
+                key={idx}
+                style={{
+                  marginBottom: "20px",
+                  borderBottom: "1px solid #eee",
+                  paddingBottom: "10px"
+                }}
+              >
+                <strong>{issue.title}</strong><br />
+                <a href={issue.issue_url} target="_blank" rel="noopener noreferrer">
+                  {issue.issue_url}
+                </a><br />
+                <span>Languages: {issue.repo_languages.join(", ")}</span><br />
+                <span>Score: {issue.score}</span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
 
       <h3 style={{ marginTop: "40px" }}>🕒 Recent Commits</h3>
       <RecentCommits />
@@ -242,7 +364,7 @@ const Dashboard = () => {
           </a>
         </div>
 
-        
+
         <a
           href={`https://github.com/${user.username || user.login}`}
           target="_blank"

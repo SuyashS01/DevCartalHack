@@ -3,7 +3,7 @@ from urllib.parse import urlparse
 from liveissue import fetch_latest_issues  # This should return title, issue_url, repo_languages
 from langdetect import detect, LangDetectException
 # GitHub token for rate limit handling (optional)
-GITHUB_TOKEN = "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"
+GITHUB_TOKEN = "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"
 
 def github_headers():
     headers = {"Accept": "application/vnd.github.v3+json"}
